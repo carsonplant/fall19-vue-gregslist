@@ -12,7 +12,9 @@ let api = axios.create({
 export default new Vuex.Store({
   state: {
     cars: [],
-    activeCar: {}
+    activeCar: {},
+    jobs: [],
+    activeJob: {},
   },
   mutations: {
     setCars(state, payload) {
@@ -20,6 +22,12 @@ export default new Vuex.Store({
     },
     setActiveCar(state, payload) {
       state.activeCar = payload
+    },
+    setJobs(state, payload) {
+      state.jobs = payload
+    },
+    setActiveJob(state, payload) {
+      state.activeJob = payload
     }
   },
   actions: {
@@ -59,7 +67,48 @@ export default new Vuex.Store({
       } catch (error) {
         console.error(error)
       }
-    }
+    },
+
+    async getJobs({ commit, dispatch }) {
+      try {
+        let res = await api.get('jobs')
+        commit('setJobs', res.data.data)
+      } catch (error) {
+        console.error(error)
+      }
+    },
+
+    async getJobById({ commit, dispatch }, payload) {
+      try {
+        let res = await api.get(`/jobs/${payload.jobId}`)
+        commit('setActiveJob', res.data.data)
+
+      } catch (error) {
+        console.error(error)
+
+      }
+    },
+
+    async addJob({ dispatch }, payload) {
+      try {
+        let res = await api.post('/jobs', payload)
+        dispatch('getJobs')
+      } catch (error) {
+        console.error(error)
+
+      }
+    },
+
+    async deleteJob({ dispatch }, payload) {
+      try {
+        let res = await api.delete('/jobs/' + payload)
+        dispatch('getJobs')
+        //NOTE this is coming from the import statement at the top
+        router.push({ name: 'jobs' })
+      } catch (error) {
+        console.error(error)
+      }
+    },
 
   }
 })
